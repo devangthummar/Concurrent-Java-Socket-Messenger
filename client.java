@@ -1,112 +1,72 @@
 import java.io.*;
 import java.net.*;
 
-public class client{
-    public static void main(String[] args) 
-    {
-        // for starting the client side using constructor
-         new ChatClient2();
-    
+public class client {
+    public static void main(String[] args) {
+        new ChatClient2();
+    }
 }
-}
-class ChatClient2
- {
+
+class ChatClient2 {
     BufferedReader input;
     PrintWriter output;
     BufferedReader consoleInput;
     Socket socket;
-    ChatClient2()
-    {
-        try
-        {
-            // accept the connection from server
-             socket = new Socket("localhost", 12345);
+
+    ChatClient2() {
+        try {
+            socket = new Socket("localhost", 12345);
             System.out.println("Connected to the server!");
 
-            // for reading the data from server and writing to server
-           input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             output = new PrintWriter(socket.getOutputStream(), true);
-             consoleInput = new BufferedReader(new InputStreamReader(System.in));
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = new PrintWriter(socket.getOutputStream(), true);
+            consoleInput = new BufferedReader(new InputStreamReader(System.in));
 
-             // calling the startreading and startwriting methods
-          startreading();
-          startwriting();
-    }
-    catch(Exception e)
-    {
-        e.printStackTrace();
+            startreading();
+            startwriting();
+        } catch (Exception e) {
+            System.out.println("Could not connect to server.");
+        }
     }
 
-    }
-    public void startreading()
-    {
-        System.out.println("enter exit to terminate the chat");
-
-        System.out.println("reader started");
-        //used lambda expression for creating the thread for reading the data from server
-        Runnable r1 =()->{
-
-            while (true)
-             {
-                String msg;
-                try 
-                {
-                    msg = input.readLine();
-               
-                if(msg.equalsIgnoreCase("exit"))
-                {
-                    System.out.println("server terminated chat");
-                    socket.close();
-                    break;
+    public void startreading() {
+        Runnable r1 = () -> {
+            System.out.println("Reader started. Type 'exit' to terminate.");
+            try {
+                while (!socket.isClosed()) {
+                    String msg = input.readLine();
+                    if (msg == null || msg.equalsIgnoreCase("exit")) {
+                        System.out.println("Server terminated the chat.");
+                        socket.close();
+                        break;
+                    }
+                    System.out.println("\n=>Server: " + msg);
                 }
-                System.out.println("------------------------------------");
-                System.out.println("=>Server:"+msg);
-                System.out.println("-------------------------------------");
-               
-            } 
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            } catch (Exception e) {
+                System.out.println("Reading stopped (Connection closed).");
             }
         };
-
-        // starting the thread
         new Thread(r1).start();
     }
-    public void startwriting()
-    {
 
-        //used lambda expression for creating the thread for writing the data to server
-        Runnable r2 =()->{
-            System.out.println("writer started");
-            System.out.println();
+    public void startwriting() {
+        Runnable r2 = () -> {
+            try {
+                while (!socket.isClosed()) {
+                    String msg = consoleInput.readLine();
+                    output.println(msg);
+                    output.flush();
 
-            while (true) 
-            {
-                String msg;
-                try 
-                {
-                    msg = consoleInput.readLine();
-               
-                if(msg.equalsIgnoreCase("exit"))
-                {
-                    System.out.println("Clent terminited the chat");
-                    socket.close();
-                    break;
+                    if (msg.equalsIgnoreCase("exit")) {
+                        System.out.println("Client terminated the chat.");
+                        socket.close();
+                        break;
+                    }
                 }
-
-                output.println(msg);
-                output.flush();
-                }
-               catch (IOException e) 
-                {
-                    e.printStackTrace();
-                }
-
-         }
-         };
-        // starting the thread
+            } catch (Exception e) {
+                System.out.println("Writing stopped (Connection closed).");
+            }
+        };
         new Thread(r2).start();
     }
 }
