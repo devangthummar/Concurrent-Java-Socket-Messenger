@@ -7,11 +7,7 @@
 ![Chat Demo](./assets/Pi7_Gif.gif)
 
 ### 2. Full Feature Walkthrough (Video)
-<p align="center">
-  <video src="./assets/Concurrent-Java-Socket-Messenger.mp4" width="100%" controls>
-    Your browser does not support the video tag.
-  </video>
-</p>
+https://github.com/user-attachments/assets/6a519090-08b9-430b-8337-e8e9e58c1a7b
 *Click the image above to watch the full technical walkthrough.*
 
 
